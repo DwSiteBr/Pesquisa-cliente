@@ -27,8 +27,7 @@
     ul li{padding:8px 0;border-bottom:1px solid #1a1a1a}
     ul li:last-child{border-bottom:none}
   </style>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="wrap">
@@ -129,19 +128,12 @@
     </main>
   </div>
   <script>
-    // Configurações do seu projeto Firebase (substitua com suas próprias credenciais)
-    const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_AUTH_DOMAIN",
-      projectId: "SEU_PROJECT_ID",
-      storageBucket: "SEU_STORAGE_BUCKET",
-      messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-      appId: "SEU_APP_ID"
-    };
+    // Configurações do seu projeto Supabase
+    const SUPABASE_URL = 'https://ztztpaawgkoykyhryycr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0enRwYWF3Z2tveWt5aHJ5eWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNzU1MjksImV4cCI6MjA3MzY1MTUyOX0.OSaUaTkBSq5soALiDwDXqAwiGs4Afwg13QpPTlQWOv4';
 
-    // Inicializa o Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    // Inicializa o Supabase
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const el = id => document.getElementById(id);
 
@@ -167,7 +159,6 @@
       };
 
       const dados = {
-        ts: new Date(), // Firebase salva o timestamp
         nome: el('nome').value.trim(),
         idade: parseInt(el('idade').value),
         sexo: el('sexo').value,
@@ -181,15 +172,23 @@
       };
 
       try {
-        // Salva os dados na coleção 'respostas'
-        await db.collection("respostas").add(dados);
-        alert('Resposta salva com sucesso!');
-        e.target.reset();
-        el('servico_outro').style.display='none';
-        el('criterio_outro').style.display='none';
-        el('dificuldade_outro').style.display='none';
-        el('acompanhamento_outro').style.display='none';
-        el('suporte_outro').style.display='none';
+        // Salva os dados na tabela 'respostas'
+        const { error } = await supabase
+          .from('respostas')
+          .insert([dados]);
+
+        if (error) {
+            console.error("Erro ao salvar a resposta: ", error);
+            alert("Ocorreu um erro ao salvar a resposta.");
+        } else {
+            alert('Resposta salva com sucesso!');
+            e.target.reset();
+            el('servico_outro').style.display='none';
+            el('criterio_outro').style.display='none';
+            el('dificuldade_outro').style.display='none';
+            el('acompanhamento_outro').style.display='none';
+            el('suporte_outro').style.display='none';
+        }
       } catch (error) {
         console.error("Erro ao salvar a resposta: ", error);
         alert("Ocorreu um erro ao salvar a resposta.");
