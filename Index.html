@@ -1,0 +1,200 @@
+<!doctype html>
+
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pesquisa de Validação — Completa</title>
+  <style>
+    :root{--bg:#0b0b0b;--card:#111;--muted:#9aa0a6;--accent:#00d4ff;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#e6eef3;background:linear-gradient(180deg,var(--bg),#050507)}
+    .wrap{max-width:860px;margin:28px auto;padding:18px}
+    header{display:flex;gap:12px;align-items:center}
+    .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7b61ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#021}
+    h1{margin:0;font-size:20px}
+    p.lead{color:var(--muted);margin:6px 0 18px}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.6);margin-top:12px}
+    label{display:block;margin-bottom:6px;font-weight:600}
+    input[type=text],input[type=number],textarea,select{width:100%;padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#e6eef3;outline:1px solid rgba(255,255,255,0.05);margin-bottom:10px}
+    .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.08);padding:8px 14px;border-radius:10px;cursor:pointer;color:#e6eef3}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),#7b61ff);color:#021;border:none}
+    .small{font-size:13px;color:var(--muted)}
+    #relatorio{display:none;margin-top:14px}
+    .bar{height:12px;background:#060608;border-radius:8px;overflow:hidden;margin-bottom:6px}
+    .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#7b61ff)}
+    ul{list-style-type:none;padding:0}
+    ul li{padding:8px 0;border-bottom:1px solid #1a1a1a}
+    ul li:last-child{border-bottom:none}
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">PV</div>
+      <div>
+        <h1>Pesquisa de Validação</h1>
+        <p class="lead">Formulário completo com todas as perguntas.</p>
+      </div>
+    </header>
+    <main class="card">
+      <form id="form">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" required placeholder="Seu nome" />
+
+        <label for="idade">Idade</label>
+        <input type="number" id="idade" required placeholder="Sua idade" min="10" max="120" />
+
+        <label for="sexo">Sexo</label>
+        <select id="sexo" required>
+          <option value="">Escolha...</option>
+          <option>Masculino</option>
+          <option>Feminino</option>
+          <option>Não informar</option>
+        </select>
+
+        <label for="servico">1. Qual tipo de serviço você costuma contratar?</label>
+        <select id="servico" required>
+          <option value="">Escolha...</option>
+          <option>Reparos/Manutenção</option>
+          <option>Limpeza/Serviços Domésticos</option>
+          <option>Tecnologia/Design</option>
+          <option>Consultoria/Mentoria</option>
+          <option>Transporte/Logística</option>
+          <option>Outro</option>
+        </select>
+        <input type="text" id="servico_outro" placeholder="Se 'Outro', escreva aqui" style="display:none" />
+
+        <label for="criterio">2. O que mais pesa na sua decisão?</label>
+        <select id="criterio" required>
+          <option value="">Escolha...</option>
+          <option>Preço</option>
+          <option>Qualidade do trabalho</option>
+          <option>Agilidade (Prazo/Rapidez)</option>
+          <option>Atendimento/Suporte</option>
+          <option>Outros</option>
+        </select>
+        <input type="text" id="criterio_outro" placeholder="Se 'Outros', escreva aqui" style="display:none" />
+
+        <label for="dificuldade">3. Qual a principal dificuldade que você já teve?</label>
+        <select id="dificuldade" required>
+          <option value="">Escolha...</option>
+          <option>O profissional não cumpriu o combinado</option>
+          <option>Preço muito alto</option>
+          <option>Falta de comunicação</option>
+          <option>Outros</option>
+        </select>
+        <input type="text" id="dificuldade_outro" placeholder="Se 'Outros', escreva aqui" style="display:none" />
+
+        <label for="acompanhamento">4. Como você prefere acompanhar o andamento do serviço?</label>
+        <select id="acompanhamento" required>
+          <option value="">Escolha...</option>
+          <option>Acompanhando pessoalmente</option>
+          <option>Recebendo atualizações do profissional</option>
+          <option>Não acompanho, confio no profissional</option>
+          <option>Outros</option>
+        </select>
+        <input type="text" id="acompanhamento_outro" placeholder="Se 'Outros', escreva aqui" style="display:none" />
+
+        <label for="ambiental">5. O fator ambiental é importante para você?</label>
+        <select id="ambiental" required>
+          <option value="">Escolha...</option>
+          <option>Sim, prefiro profissionais ecológicos</option>
+          <option>Um pouco, mas não é decisivo</option>
+          <option>Não, não considero esse fator</option>
+        </select>
+
+        <label for="suporte">6. O suporte após o serviço é importante para você?</label>
+        <select id="suporte" required>
+          <option value="">Escolha...</option>
+          <option>Muito importante</option>
+          <option>Mais ou menos importante</option>
+          <option>Pouco importante</option>
+          <option>Outros</option>
+        </select>
+        <input type="text" id="suporte_outro" placeholder="Se 'Outros', escreva aqui" style="display:none" />
+
+        <label for="recomenda">7. Você recomendaria um bom profissional?</label>
+        <select id="recomenda" required>
+          <option value="">Escolha...</option>
+          <option>Sim</option>
+          <option>Talvez</option>
+          <option>Não</option>
+        </select>
+
+        <button class="btn primary" type="submit">Salvar resposta</button>
+      </form>
+    </main>
+  </div>
+  <script>
+    // Configurações do seu projeto Firebase (substitua com suas próprias credenciais)
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_AUTH_DOMAIN",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_STORAGE_BUCKET",
+      messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    // Inicializa o Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const el = id => document.getElementById(id);
+
+    function toggleInput(selectId, inputId) {
+        el(selectId).addEventListener('change', e => {
+            el(inputId).style.display = e.target.value === 'Outro' || e.target.value === 'Outros' ? 'block' : 'none';
+        });
+    }
+
+    toggleInput('servico', 'servico_outro');
+    toggleInput('criterio', 'criterio_outro');
+    toggleInput('dificuldade', 'dificuldade_outro');
+    toggleInput('acompanhamento', 'acompanhamento_outro');
+    toggleInput('suporte', 'suporte_outro');
+
+    el('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const getVal = (selectId, inputId) => {
+        const val = el(selectId).value;
+        const otherVal = el(inputId).value.trim();
+        return (val === 'Outro' || val === 'Outros') ? (otherVal || 'Outros') : val;
+      };
+
+      const dados = {
+        ts: new Date(), // Firebase salva o timestamp
+        nome: el('nome').value.trim(),
+        idade: parseInt(el('idade').value),
+        sexo: el('sexo').value,
+        servico: getVal('servico', 'servico_outro'),
+        criterio: getVal('criterio', 'criterio_outro'),
+        dificuldade: getVal('dificuldade', 'dificuldade_outro'),
+        acompanhamento: getVal('acompanhamento', 'acompanhamento_outro'),
+        ambiental: el('ambiental').value,
+        suporte: getVal('suporte', 'suporte_outro'),
+        recomenda: el('recomenda').value
+      };
+
+      try {
+        // Salva os dados na coleção 'respostas'
+        await db.collection("respostas").add(dados);
+        alert('Resposta salva com sucesso!');
+        e.target.reset();
+        el('servico_outro').style.display='none';
+        el('criterio_outro').style.display='none';
+        el('dificuldade_outro').style.display='none';
+        el('acompanhamento_outro').style.display='none';
+        el('suporte_outro').style.display='none';
+      } catch (error) {
+        console.error("Erro ao salvar a resposta: ", error);
+        alert("Ocorreu um erro ao salvar a resposta.");
+      }
+    });
+  </script>
+</body>
+</html>
